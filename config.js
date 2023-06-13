@@ -80,32 +80,32 @@ app.post("/", (req, res) => {
     });
 });
 
-// app.use(
-//   "/db",
-//   createProxyMiddleware({
-//     target: "http://127.0.0.1:5665/ui/?endpoint=/",
-//     changeOrigin: true,
-//     // pathRewrite: {
-//     //   [`^/`]: "",
-//     // },
-//   })
-// );
+app.use(
+  "/db",
+  createProxyMiddleware({
+    target: "http://127.0.0.1:5665/ui/?endpoint=/",
+    changeOrigin: true,
+    // pathRewrite: {
+    //   [`^/`]: "",
+    // },
+  })
+);
 
-// app.use(
-//   "/",
-//   createProxyMiddleware({
-//     target: "http://127.0.0.1:5665/ui/",
-//     changeOrigin: true,
-//     // pathRewrite: {
-//     //   [`^/`]: "",
-//     // },
-//   })
-// );
+app.use(
+  "/",
+  createProxyMiddleware({
+    target: "http://127.0.0.1:5665/ui/",
+    changeOrigin: true,
+    // pathRewrite: {
+    //   [`^/`]: "",
+    // },
+  })
+);
 
-// app.get("/db", (req, res) => {
-//   console.log("hi")
-//   fetch("http://127.0.0.1:5665/ui/?endpoint=/").then((r) => {
-//     // console.log(r)
-//     return r.text()
-//   }).then(d => { console.log(d); res.send(d);});
-// });
+app.get("/db", (req, res) => {
+  console.log("hi")
+  fetch("http://127.0.0.1:5665/ui/?endpoint=/").then((r) => {
+    // console.log(r)
+    return r.text()
+  }).then(d => { console.log(d); res.send(d);});
+});
