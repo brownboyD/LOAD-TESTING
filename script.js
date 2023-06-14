@@ -1,6 +1,5 @@
 import http from "k6/http";
 import { sleep, check } from "k6";
-import { endpoints } from "./ApI.js";
 export let options = {
   stages: [
     { duration: `${__ENV.RAMPUPDURATION}m`, target: Number(__ENV.VU) }, // Ramp up to n virtual users over t minute
@@ -11,7 +10,6 @@ export let options = {
     http_req_duration: ["p(95)<50000"], // Set a response time threshold of 500ms for 95% of requests
   },
 };
-
 export function setup() {
   let payload = JSON.stringify({
     ms_request: {
@@ -47,38 +45,35 @@ export function setup() {
 export default function (data) {
   // Use the access token from the context object for subsequent API requests
   // console.log("Performing get requests ");
+
   let headers = {
     Cookie: `_felix_session_id=${data.authToken}`,
   };
+  
+  const jsonData = JSON.parse(__ENV.JSONDATA);
 
-  for (let i = 0; i < endpoints.length; i++) {
-    let endpoint = endpoints[i];
-    let { method, url } = endpoint;
-    console.log(`Requesting endpoint: ${url} (${method})`);
+  for (let i = 0; i < jsonData.length; i++) {
+    let request = jsonData[i];
+    let { method, apiEndPoint, payload } = request;
+
+    console.log(`Requesting endpoint: ${apiEndPoint} (${method})`);
 
     let response;
 
     switch (method) {
       case "GET":
-        response = http.get(url, { headers });
+        response = http.get(`${__ENV.DOMAIN}${apiEndPoint}`, { headers });
         break;
       case "POST":
-        response = http.post(url, payload, { headers });
+        let postPayload = JSON.stringify(payload);
+        response = http.post(`${__ENV.DOMAIN}${apiEndPoint}`, postPayload, { headers });
         break;
       case "PUT":
-        let payload = JSON.stringify({
-          ms_request: {
-            post: {
-              title: "ABC",
-              description: "UPDATED A REPORT",
-              conversation_id: "359344",
-            },
-          },
-        });
-        response = http.put(url, payload, { headers });
+        let putPayload = JSON.stringify(payload);
+        response = http.post(`${__ENV.DOMAIN}${apiEndPoint}`, putPayload, { headers });
         break;
       case "DELETE":
-        response = http.del(url, null, { headers });
+        response = http.del(`${__ENV.DOMAIN}${apiEndPoint}`, null, { headers });
         break;
       default:
         console.log(`Unsupported request method: ${method}`);

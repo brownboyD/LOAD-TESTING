@@ -27,59 +27,59 @@ app.post("/", upload, (req, res) => {
   function runCommand(command, args) {
     return new Promise((resolve, reject) => {
       const process = spawn(command, args);
-      let output = "";
 
       process.stdout.on("data", (data) => {
-        const newData = data.toString();
-        output += newData;
-        res.write(newData);
+        console.log(data.toString());
       });
 
       process.stderr.on("data", (data) => {
-        const errorData = data.toString();
-        console.error(errorData);
+        console.error(data.toString());
       });
 
       process.on("close", (code) => {
         if (code === 0) {
-          resolve(output);
+          resolve();
         } else {
           reject(new Error(`Command exited with code ${code}`));
         }
       });
+
     });
   }
 
   // Parse the uploaded JSON file content as an object
-  const jsonData = JSON.parse(fileContent);
-  
-  for(let i =0;i<jsonData.length;i++)
-  {
-    console.log(jsonData[i])
-  }
+  // const jsonData = JSON.parse(fileContent);
+
+  // for (let i = 0; i < jsonData.length; i++) {
+  //   console.log(jsonData[i]);
+  // }
   // Run the k6 script with the uploaded JSON data
-  // runCommand("k6", [
-  //   "run",
-  //   "--env",
-  //   `USERNAME=${username}`,
-  //   "--env",
-  //   `PASSWORD=${password}`,
-  //   "--env",
-  //   `APIKEY=${api_key}`,
-  //   "--env",
-  //   `DOMAIN=${domain}`,
-  //   "--env",
-  //   `RAMPUPDURATION=${rampUpDuration}`,
-  //   "--env",
-  //   `VU=${vu}`,
-  //   "/Users/mymac/Documents/trying_connecting/script.js",
-  // ])
-  //   .then((output) => {
-  //     console.log("Command completed successfully.");
-  //     res.end();
-  //   })
-  //   .catch((error) => {
-  //     console.error("An error occurred while running the command:", error);
-  //     res.status(500).send(error.message);
-  //   });
+
+  
+  runCommand("k6", [
+    "run",
+    "--env",
+    `USERNAME=${username}`,
+    "--env",
+    `PASSWORD=${password}`,
+    "--env",
+    `APIKEY=${api_key}`,
+    "--env",
+    `DOMAIN=${domain}`,
+    "--env",
+    `RAMPUPDURATION=${rampUpDuration}`,
+    "--env",
+    `VU=${vu}`,
+    "--env",
+    `JSONDATA=${fileContent}`,
+    "/Users/mymac/Documents/trying_connecting/script.js",
+  ])
+    .then((output) => {
+      console.log("Command completed successfully.");
+      res.end();
+    })
+    .catch((error) => {
+      console.error("An error occurred while running the command:", error);
+      res.status(500).send(error.message);
+    });
 });
